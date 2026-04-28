@@ -1,65 +1,44 @@
-Documentação do Projeto: Pipeline de Dados OpenWeather (Medallion Architecture)
-1. Visão Geral
-Este projeto implementa um pipeline de dados automatizado no Databricks para ingestão e processamento de dados climáticos em tempo real da cidade de Curitiba, utilizando a API da OpenWeather. O objetivo é estruturar os dados para alimentar um dashboard no Power BI com atualizações horárias.
+# ☁️ Weather Data Pipeline: OpenWeather + Databricks (Medallion Architecture)
 
-2. Arquitetura da Solução
-A arquitetura segue o padrão Medallion, garantindo qualidade e linhagem dos dados:
+Este projeto demonstra um pipeline de engenharia de dados de ponta a ponta, realizando a ingestão, transformação e disponibilização de dados meteorológicos de Curitiba, utilizando a API da **OpenWeather** e a plataforma **Databricks**.
 
-Ingestão (API): Consumo via Python (requests) extraindo dados JSON.
+## 🚀 Visão Geral
 
-Camada Bronze (Raw): Armazenamento dos dados brutos em formato Delta, incluindo metadados como ingestion_timestamp.
+O objetivo principal é capturar dados climáticos em tempo real, processá-los através das camadas **Bronze**, **Silver** e **Gold** (Arquitetura Medalhão) e servir uma tabela final otimizada para um dashboard no **Power BI**.
 
-Camada Silver (Trusted): Limpeza e "achatamento" (flattening) das estruturas JSON. Conversão de tipos e ajuste de fuso horário para America/Sao_Paulo.
+## 🏗️ Arquitetura do Projeto
 
-Camada Gold (Refined): Deduplicação de registros e consolidação final em uma tabela otimizada para consumo analítico.
+O pipeline foi estruturado seguindo as melhores práticas de engenharia de dados:
 
-3. Detalhes Técnicos
-Stack Tecnológica
-Linguagens: Python (PySpark, Pandas) e SQL.
+1.  **Ingestão:** Script Python utilizando a biblioteca `requests` para consumo da API OpenWeather.
+2.  **Bronze (Raw):** Dados brutos armazenados em formato **Delta** com adição de metadados (`ingestion_timestamp`).
+3.  **Silver (Trusted):** Tratamento de tipos de dados (Casting), achatamento de JSON e conversão de fuso horário para `America/Sao_Paulo`.
+4.  **Gold (Refined):** Deduplicação de registros e criação de tabela consolidada no **Unity Catalog** para consumo analítico.
 
-Plataforma: Databricks com Unity Catalog.
+## 🛠️ Tecnologias Utilizadas
 
-Armazenamento: Delta Lake (Volumes Gerenciados).
+* **Linguagens:** Python (PySpark), SQL.
+* **Data Lakehouse:** Databricks & Delta Lake.
+* **Governança:** Unity Catalog (Catalogs, Schemas e Volumes).
+* **Orquestração:** Databricks Workflows (Job agendado de 1h em 1h).
+* **Visualização:** Power BI (Conectado via Databricks SQL Warehouse com Personal Access Token).
 
-Orquestração: Databricks Workflows (Job agendado de 1h em 1h).
+## 📊 Estrutura do Pipeline (Notebook)
 
-Visualização: Power BI (Conectado via Databricks SQL Warehouse com Token de Acesso Pessoal - PAT).
+O código está dividido em células que realizam:
+* A configuração do catálogo e esquemas.
+* A extração da API para um DataFrame Spark.
+* A persistência histórica na camada Bronze.
+* A limpeza e transformação para a Silver.
+* A consolidação final na tabela `projeto_api.pro_clima.clima_consolidado`.
 
-Estrutura de Dados (Data Modeling)
-A tabela final projeto_api.pro_clima.clima_consolidado contém:
+## ⚙️ Automação e Integração
 
-cidade: Nome da localidade.
+* **Agendamento:** Um Job no Databricks foi configurado para rodar o pipeline a cada hora, garantindo que o dashboard esteja sempre atualizado.
+* **Conexão Power BI:** A integração é feita via conector nativo do Databricks, utilizando autenticação por **Token (PAT)** para garantir segurança e performance na atualização dos dados.
 
-temperatura: Valor em Celsius.
-
-umidade: Percentual de umidade relativa.
-
-condicao_tempo: Descrição textual do clima.
-
-velocidade_vento: Velocidade convertida.
-
-data_referencia: Timestamp do momento da medição da API.
-
-4. Implementação do Pipeline
-Camada de Governança
-O projeto utiliza o Unity Catalog para organizar os dados:
-
-SQL
-CREATE CATALOG IF NOT EXISTS projeto_API;
-CREATE SCHEMA IF NOT EXISTS projeto_API.pro_clima;
-Automação (Jobs)
-Frequência: Recorrência horária (0 * * * *).
-
-Token de Conexão: A segurança da integração com o Power BI é mantida via PAT (Personal Access Token), configurado no SQL Warehouse do Databricks para garantir que o dashboard reflita sempre a última extração da camada Gold.
-
-5. Como Reproduzir
-Obtenha uma chave de API no OpenWeather.
-
-Configure os Volumes no seu ambiente Databricks.
-
-Execute o notebook de ingestão para criar as tabelas iniciais.
-
-Configure o Databricks SQL Warehouse e conecte o Power BI utilizando o Server Hostname e o HTTP Path fornecidos.
+---
+⭐ *Projeto desenvolvido por Clayton Antonio Medeiros da Silva*
 <img width="1558" height="900" alt="image" src="https://github.com/user-attachments/assets/2a2fa0b2-9634-497b-ad2b-e68a548189d1" />
 <img width="1332" height="722" alt="image" src="https://github.com/user-attachments/assets/ea0e2ec4-4ea7-4d4f-99cd-3195103ef491" />
 
